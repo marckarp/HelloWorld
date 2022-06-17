@@ -8,7 +8,7 @@ RUN apt-get -y update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN wget https://bootstrap.pypa.io/get-pip.py && python get-pip.py && \
+RUN wget https://bootstrap.pypa.io/pip/3.6/get-pip.py && python get-pip.py && \
     pip3 install numpy==1.16.2 flask gevent gunicorn pandas dill
       
         
