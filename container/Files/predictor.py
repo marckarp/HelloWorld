@@ -26,8 +26,8 @@ class ScoringService(object):
     def get_model(cls):
         """Get the model object for this instance, loading it if it's not already loaded."""
         if cls.model == None:
-            with open(os.path.join(model_path, 'hello-world-model.pkl'), 'rb') as inp:
-                cls.model = pickle.load(inp)
+            with open(os.path.join(model_path, 'hello-world-model.pkl'), 'rb') as f:
+                cls.model = pickle.load(f)
         return cls.model
 
     @classmethod
@@ -60,22 +60,22 @@ def transformation():
     """
     data = None
 
-    # Convert from CSV to pandas
-    if flask.request.content_type == 'text/csv':
-        data = flask.request.data.decode('utf-8')
-        s = StringIO(data)
-        data = pd.read_csv(s, header=None)
-    else:
-        return flask.Response(response='This predictor only supports CSV data', status=415, mimetype='text/plain')
+    if flask.request.content_type == 'application/json':
+        data = flask.request.get_json()
 
-    print('Invoked with {} records'.format(data.shape[0]))
+    else:
+        return flask.Response(response='This predictor only supports JSON data', status=415, mimetype='text/plain')
+    
+    say_hello_value = data["SayHelloWorld"]
 
     # Do the prediction
-    predictions = ScoringService.predict(data)
+    predictions = ScoringService.predict(say_hello_value)
 
-    # Convert from numpy back to CSV
-    out = StringIO()
-    pd.DataFrame({'results':predictions}, index =[0]).to_csv(out, header=False, index=False)
-    result = out.getvalue()
 
-    return flask.Response(response=result, status=200, mimetype='text/csv')
+        # Create result dict
+    result = {
+        "SayHelloWorldResults": predictions 
+    }
+    print(f"result:\n{result}")
+
+    return flask.Response(response=json.dumps(result), status=200, mimetype='application/json')
